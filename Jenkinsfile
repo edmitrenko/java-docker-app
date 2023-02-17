@@ -1,6 +1,6 @@
 #!/usr/bin/env groovy
 pipeline {
-    agent java
+    {label 'java'}  
 
     options {
         buildDiscarder(logRotator(numToKeepStr: '10'))
