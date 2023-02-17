@@ -1,3 +1,4 @@
+#!/usr/bin/env groovy
 pipeline {
     agent java
 
@@ -84,6 +85,7 @@ pipeline {
                 sh "docker rmi ${AWS_ECR_URL}:${POM_VERSION}"
             }
         }
+    }
 }
 
 def getJarName() {
