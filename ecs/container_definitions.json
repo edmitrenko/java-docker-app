@@ -4,7 +4,7 @@
     "cpu": 2,
     "memory": 512,
     "environment": [],
-    "image": "860300666219.dkr.ecr.us-east-1.amazonaws.com/spring-app:latest",
+    "image": "860300666219.dkr.ecr.ca-central-1.amazonaws.com/spring-app:latest",
     "name": "spring-app",
     "portMappings": [
       { "containerPort": 8080, "protocol": "tcp" }
