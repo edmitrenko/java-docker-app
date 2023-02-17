@@ -41,7 +41,7 @@ pipeline {
             steps {
                 withCredentials([string(credentialsId: 'AWS_REPOSITORY_URL_SECRET', variable: 'AWS_ECR_URL')]) {
                     script {
-                        sh('#!/bin/sh -e\n' "set -x")
+                        sh('#!/bin/sh -e\n' + "set -x")
                         docker.build("${AWS_ECR_URL}:${POM_VERSION}", "--build-arg JAR_FILE=${JAR_NAME} .")
                     }
                 }
