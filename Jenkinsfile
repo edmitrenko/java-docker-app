@@ -27,7 +27,7 @@ pipeline {
         AWS_ECS_MEMORY = '512'
         AWS_ECS_CLUSTER = 'production'
         AWS_ECS_TASK_DEFINITION_PATH = './ecs/container_definitions.json'
-}
+    }
 
     stages {
         stage('Build & Test') {
@@ -76,6 +76,7 @@ pipeline {
             }
         }
     }
+}
 
    post {
         always {
