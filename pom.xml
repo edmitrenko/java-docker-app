@@ -10,7 +10,7 @@
 	</parent>
 	<groupId>com.example</groupId>
 	<artifactId>spring-docker-simple</artifactId>
-	<version>0.0.2</version>
+	<version>0.0.3</version>
 	<name>spring-docker-simple</name>
 	<description>Demo project for Spring Boot</description>
 	<properties>
