@@ -23,8 +23,8 @@ pipeline {
         AWS_ECS_TASK_DEFINITION = 'spring'
         AWS_ECS_COMPATIBILITY = 'EC2'
         AWS_ECS_NETWORK_MODE = 'bridge'
-        AWS_ECS_CPU = '256'
-        AWS_ECS_MEMORY = '512'
+        AWS_ECS_CPU = '2'
+        AWS_ECS_MEMORY = '128'
         AWS_ECS_CLUSTER = 'production'
         AWS_ECS_TASK_DEFINITION_PATH = './ecs/container_definitions.json'
     }
