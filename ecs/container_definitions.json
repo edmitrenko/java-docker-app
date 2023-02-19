@@ -1,3 +1,6 @@
+{
+"family": "spring",
+"containerDefinitions":
 [
   {
     "essential": true,
@@ -11,3 +14,4 @@
     ]
   }
 ]
+}
