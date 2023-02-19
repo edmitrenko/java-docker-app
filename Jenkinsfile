@@ -9,12 +9,6 @@ pipeline {
         timestamps()
     }
 
-//   tools {
-//        jdk 'openjdk-11'
-//        maven 'maven 3.6.3'
-//        dockerTool 'docker-latest'
-//    }
-
     environment {
         POM_VERSION = getVersion()
         JAR_NAME = getJarName()
@@ -30,14 +24,14 @@ pipeline {
     }
 
     stages {
-        stage('Build & Test') {
+        stage('BUILD & TEST JAVA APPLICATION') {
             steps {
                 withMaven(options: [artifactsPublisher(), mavenLinkerPublisher(), dependenciesFingerprintPublisher(disabled: true), jacocoPublisher(disabled: true), junitPublisher(disabled: true)]) {
                     sh "./mvnw package"
                     }
             }
         }
-        stage('Build Docker Image') {
+        stage('BUILD DOCKER IMAGE') {
             steps {
                 withCredentials([string(credentialsId: 'AWS_REPOSITORY_URL_SECRET', variable: 'AWS_ECR_URL')]) {
                     script {
@@ -48,7 +42,7 @@ pipeline {
             }
         }
 
-        stage('Push Image to ECR') {
+        stage('PUSH IMAGE TO ECR') {
             steps {
                 withCredentials([string(credentialsId: 'AWS_REPOSITORY_URL_SECRET', variable: 'AWS_ECR_URL')]) {
                     withAWS(region: "${AWS_ECR_REGION}", credentials: 'personal-aws') {
@@ -62,13 +56,14 @@ pipeline {
             }
         }
 
-        stage('Deploy in ECS') {
+        stage('DEPLOY IN ECS') {
             steps {
-                withCredentials([string(credentialsId: 'AWS_EXECUTION_ROL_SECRET', variable: 'AWS_ECS_EXECUTION_ROL'),string(credentialsId: 'AWS_REPOSITORY_URL_SECRET', variable: 'AWS_ECR_URL')]) {
+                withCredentials([string(credentialsId: 'AWS_REPOSITORY_URL_SECRET', variable: 'AWS_ECR_URL')]) {
                     withAWS(region: "${AWS_ECR_REGION}", credentials: 'personal-aws') {
                     script {
                         updateContainerDefinitionJsonWithImageVersion()
-                        sh("aws ecs register-task-definition --region ${AWS_ECR_REGION} --family ${AWS_ECS_TASK_DEFINITION} --requires-compatibilities ${AWS_ECS_COMPATIBILITY} --network-mode ${AWS_ECS_NETWORK_MODE} --cpu ${AWS_ECS_CPU} --memory ${AWS_ECS_MEMORY} --container-definitions file://${AWS_ECS_TASK_DEFINITION_PATH}")
+//                      sh("aws ecs register-task-definition --region ${AWS_ECR_REGION} --family ${AWS_ECS_TASK_DEFINITION} --requires-compatibilities ${AWS_ECS_COMPATIBILITY} --network-mode ${AWS_ECS_NETWORK_MODE} --cpu ${AWS_ECS_CPU} --memory ${AWS_ECS_MEMORY} --container-definitions file://${AWS_ECS_TASK_DEFINITION_PATH}")
+                        sh("aws ecs register-task-definition --region ${AWS_ECR_REGION} --family ${AWS_ECS_TASK_DEFINITION} --cli-input-json file://${AWS_ECS_TASK_DEFINITION_PATH}")
                         def DESIRED_COUNT = sh(script: "aws ecs describe-services --services ${AWS_ECS_SERVICE} --cluster ${AWS_ECS_CLUSTER} --region ${AWS_ECR_REGION} | jq .services[].desiredCount", returnStdout: true)
                         def taskRevision = sh(script: "aws ecs describe-task-definition --task-definition ${AWS_ECS_TASK_DEFINITION} | egrep \"revision\" | tr \"/\" \" \" | awk '{print \$2}' | sed 's/\"\$//'", returnStdout: true)
                         sh("aws ecs update-service --cluster ${AWS_ECS_CLUSTER} --service ${AWS_ECS_SERVICE} --task-definition ${AWS_ECS_TASK_DEFINITION} --desired-count ${DESIRED_COUNT}")
@@ -82,9 +77,6 @@ pipeline {
    post {
         always {
             withCredentials([string(credentialsId: 'AWS_REPOSITORY_URL_SECRET', variable: 'AWS_ECR_URL')]) {
-//              junit allowEmptyResults: true, testResults: 'target/surfire-reports/*.xml'
-//              publishHTML([allowMissing: true, alwaysLinkToLastBuild: false, keepAll: false, reportDir: 'target/site/jacoco-ut/', reportFiles: 'index.html', reportName: 'Unit Testing Coverage', reportTitles: 'Unit Testing Coverage'])
-//              jacoco(execPattern: 'target/jacoco-ut.exec')
                 deleteDir()
                 sh "docker rmi ${AWS_ECR_URL}:${POM_VERSION}"
             }
